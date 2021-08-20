@@ -5,6 +5,7 @@ import br.com.zup.orange.RegistraChavePixRequest
 import br.com.zup.orange.RegistraChavePixResponse
 import br.com.zup.orange.integracao.ItauClient
 import br.com.zup.orange.pix.ChavePixRepository
+import br.com.zup.orange.tratamentoErros.ErrorHandler
 import io.grpc.Status
 import io.grpc.stub.StreamObserver
 import io.micronaut.http.HttpResponse
@@ -14,6 +15,7 @@ import javax.inject.Singleton
 import javax.transaction.Transactional
 
 @Singleton
+@ErrorHandler
 class RegistraChaveEndpoint(@Inject val repository: ChavePixRepository, @Inject val itauClient: ItauClient) :
     KeyManagerRegistaChaveGrpcServiceGrpc.KeyManagerRegistaChaveGrpcServiceImplBase() {
 
@@ -22,8 +24,6 @@ class RegistraChaveEndpoint(@Inject val repository: ChavePixRepository, @Inject 
         responseObserver: StreamObserver<RegistraChavePixResponse>
     ) {
         val novaChave = request.toModel()
-
-        try {
 
             //Verifica se chave já existe
             if (repository.existsByChave(novaChave.chave)) // 1
@@ -46,35 +46,5 @@ class RegistraChaveEndpoint(@Inject val repository: ChavePixRepository, @Inject 
                     .build()
             )
             responseObserver.onCompleted()
-
-        } catch (ex: IllegalArgumentException) {
-            responseObserver.onError(
-                Status.INVALID_ARGUMENT
-                    .withDescription(ex.message)
-                    .asRuntimeException()
-            )
-        } catch (ex: IllegalStateException) {
-
-            responseObserver.onError(
-                Status.ALREADY_EXISTS
-                    .withDescription(ex.message)
-                    .asRuntimeException()
-            )
-        } catch (ex: HttpClientResponseException) {
-            responseObserver.onError(
-                Status.NOT_FOUND
-                    .withDescription("Conta não registada no Itau")
-                    .withCause(ex.cause)
-                    .asRuntimeException()
-            )
-        } catch (ex: Exception) {
-            responseObserver.onError(
-                Status.INTERNAL
-                    .withDescription(ex.message)
-                    .withCause(ex.cause)
-                    .asRuntimeException()
-            )
-        }
-
     }
 }
