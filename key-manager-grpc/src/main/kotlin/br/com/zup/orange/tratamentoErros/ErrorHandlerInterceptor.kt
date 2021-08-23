@@ -26,6 +26,7 @@ class ErrorAroundHandlerInterceptor : MethodInterceptor<Any, Any> {
                 is IllegalArgumentException -> Status.INVALID_ARGUMENT.withCause(ex).withDescription(ex.message)
                 is IllegalStateException -> Status.ALREADY_EXISTS.withCause(ex).withDescription(ex.message)
                 is HttpClientResponseException -> Status.NOT_FOUND.withCause(ex.cause).withDescription("Conta não registada no Itau")
+                is ChavePixNaoExistenteException -> Status.NOT_FOUND.withCause(ex.cause).withDescription(ex.message)
                 else -> Status.UNKNOWN.withCause(ex).withDescription("Erro inesperado")
             }
 

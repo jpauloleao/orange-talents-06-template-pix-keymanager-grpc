@@ -24,8 +24,7 @@ class RegistraChaveEndpoint(@Inject val repository: ChavePixRepository, @Inject 
         val novaChave = request.toModel()
 
             //Verifica se chave já existe
-            if (repository.existsByChave(novaChave.chave)) // 1
-                throw IllegalStateException("Chave Pix '${novaChave.chave}' existente")
+            if (repository.existsByChave(novaChave.chave)) throw IllegalStateException("Chave Pix '${novaChave.chave}' existente")
 
             //Faz a validação das Chaves
             val validacao = novaChave.tipoChave.validaChave(novaChave.chave)

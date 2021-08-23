@@ -8,30 +8,44 @@ option objc_class_prefix = "HLW";
 package br.com.zup.orange;
 
 service KeyManagerRegistaChaveGrpcService {
-  rpc registraChave(RegistraChavePixRequest) returns (RegistraChavePixResponse) {}
+    rpc registraChave(RegistraChavePixRequest) returns (RegistraChavePixResponse) {}
 }
 
-enum TipoConta{
-  CONTA_NAO_ESPEFICICADA = 0;
-  CONTA_POUPANCA = 1;
-  CONTA_CORRENTE = 2;
+service KeyManagerRemoveChaveGrpcService {
+    rpc removeChave(RemoveChavePixRequest) returns (RemoveChavePixResponse) {}
 }
 
-enum TipoChave{
-  CHAVE_NAO_ESPEFICICADA = 0;
-  CPF = 1;
-  CELULAR = 2;
-  EMAIL = 3;
-  ALEATORIA = 4;
+enum TipoConta {
+    CONTA_NAO_ESPEFICICADA = 0;
+    CONTA_POUPANCA = 1;
+    CONTA_CORRENTE = 2;
+}
+
+enum TipoChave {
+    CHAVE_NAO_ESPEFICICADA = 0;
+    CPF = 1;
+    CELULAR = 2;
+    EMAIL = 3;
+    ALEATORIA = 4;
 }
 
 message RegistraChavePixRequest {
-  string clientID = 1;
-  TipoChave tipoChave = 2;
-  string chave = 3;
-  TipoConta tipoConta = 4;
+    string clientID = 1;
+    TipoChave tipoChave = 2;
+    string chave = 3;
+    TipoConta tipoConta = 4;
 }
 
 message RegistraChavePixResponse {
-  string pixId = 1;
+    string pixId = 1;
+}
+
+message RemoveChavePixRequest {
+    string clientId = 1;
+    string chavePixId = 2;
+}
+
+
+message RemoveChavePixResponse {
+    string clientId = 1;
 }
