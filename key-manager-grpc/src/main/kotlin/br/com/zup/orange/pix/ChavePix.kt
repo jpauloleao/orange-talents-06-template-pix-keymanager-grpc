@@ -13,17 +13,21 @@ import javax.validation.constraints.NotNull
 @Entity
 class ChavePix(
     @field:NotNull
+    @Column(nullable = false)
     val clienteId: String,
 
     @field:NotNull
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     val tipoChave: TipoChave,
 
     @field:NotBlank
+    @Column(nullable = false, unique = true)
     var chave: String,
 
     @field:NotNull
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     val tipoConta: TipoConta,
 
     @field:Valid

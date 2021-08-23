@@ -6,13 +6,11 @@ import br.com.zup.orange.RegistraChavePixResponse
 import br.com.zup.orange.integracao.ItauClient
 import br.com.zup.orange.pix.ChavePixRepository
 import br.com.zup.orange.tratamentoErros.ErrorHandler
-import io.grpc.Status
 import io.grpc.stub.StreamObserver
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import javax.inject.Inject
 import javax.inject.Singleton
-import javax.transaction.Transactional
 
 @Singleton
 @ErrorHandler
@@ -30,7 +28,7 @@ class RegistraChaveEndpoint(@Inject val repository: ChavePixRepository, @Inject 
                 throw IllegalStateException("Chave Pix '${novaChave.chave}' existente")
 
             //Faz a validação das Chaves
-            novaChave.tipoChave.validaChave(novaChave.chave)
+            val validacao = novaChave.tipoChave.validaChave(novaChave.chave)
 
             //Busca dados da conta na API do ITAU
             val response = itauClient.buscaConta(novaChave.clienteId, novaChave.tipoConta.name)
