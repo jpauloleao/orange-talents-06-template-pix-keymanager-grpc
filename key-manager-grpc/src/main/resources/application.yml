@@ -3,11 +3,11 @@ micronaut:
     name: keyManagerGrpc
 datasources:
   default:
-    url: jdbc:postgresql://localhost:5432/pix
+    url: jdbc:postgresql://localhost:5432/pixDesafio
     driverClassName: org.postgresql.Driver
     username: postgres
     password: postgres
-    schema-generate: CREATE_DROP
+    #schema-generate: CREATE_DROP
     dialect: POSTGRES
 
 jpa.default.properties.hibernate.hbm2ddl.auto: update

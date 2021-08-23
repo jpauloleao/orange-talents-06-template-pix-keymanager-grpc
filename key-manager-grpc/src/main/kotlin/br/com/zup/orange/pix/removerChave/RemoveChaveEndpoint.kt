@@ -20,9 +20,9 @@ class RemoveChaveEndpoint(@Inject val repository: ChavePixRepository) :
     ) {
 
         //Verifica se chave existe
-        val chavePix = repository.findByIdAndClienteId(UUID.fromString(request.chavePixId), request.clientId)
+        val chavePix = repository.findByIdAndClienteId(UUID.fromString(request.chavePixId),request.clientId)
         if (chavePix.isEmpty) {
-            throw ChavePixNaoExistenteException("A chave pix não está cadastrada no sistema!")
+            throw ChavePixNaoExistenteException("A chave pix não está cadastrada no sistema ou não pertence ao Cliente")
         }
 
         repository.delete(chavePix.get())
