@@ -1,6 +1,6 @@
 package br.com.zup.orange
 
-import br.com.zup.orange.integracao.ItauClient
+import br.com.zup.orange.integracao.itau.ItauClient
 import br.com.zup.orange.pix.ChavePix
 import br.com.zup.orange.pix.ChavePixRepository
 import br.com.zup.orange.pix.compartilhado.DadosContaResponse

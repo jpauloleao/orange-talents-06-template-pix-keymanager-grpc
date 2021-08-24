@@ -16,3 +16,6 @@ jpa.default.properties.hibernate.format_sql: true
 
 itau:
     url: ${ITAU_URL:`http://localhost:9091`}
+
+bcb:
+  url: ${BCB_URL:`http://localhost:8082/api/v1/`}

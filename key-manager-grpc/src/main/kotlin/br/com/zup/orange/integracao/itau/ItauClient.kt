@@ -1,4 +1,4 @@
-package br.com.zup.orange.integracao
+package br.com.zup.orange.integracao.itau
 
 import br.com.zup.orange.pix.compartilhado.DadosContaResponse
 import io.micronaut.http.HttpResponse

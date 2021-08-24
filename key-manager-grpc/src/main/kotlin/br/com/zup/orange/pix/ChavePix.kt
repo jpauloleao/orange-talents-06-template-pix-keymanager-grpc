@@ -39,4 +39,10 @@ class ChavePix(
     val id: UUID? = null
 
     val criadaEm: LocalDateTime = LocalDateTime.now()
+
+    fun atualizaChave(chave: String){
+        if (tipoChave == TipoChave.ALEATORIA) {
+            this.chave = chave
+        }
+    }
 }
