@@ -12,7 +12,7 @@ import io.micronaut.http.client.annotation.Client
 interface BcbClient {
 
     @Post("/pix/keys", consumes = [MediaType.APPLICATION_XML], produces = [MediaType.APPLICATION_XML])
-    fun criaChaveBcb(@Body request: PixKeyRequest): HttpResponse<CreatePixKeyResponse>
+    fun criaChaveBcb(@Body request: CreatePixKeyRequest): HttpResponse<CreatePixKeyResponse>
 
     @Delete("/pix/keys/{key}", consumes = [MediaType.APPLICATION_XML], produces = [MediaType.APPLICATION_XML])
     fun removeChaveBcb(@PathVariable key: String, @Body request: DeletePixKeyRequest): HttpResponse<DeletePixKeyResponse>

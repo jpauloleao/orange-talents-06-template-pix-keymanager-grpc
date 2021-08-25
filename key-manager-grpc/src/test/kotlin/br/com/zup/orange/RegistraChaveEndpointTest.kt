@@ -1,5 +1,6 @@
 package br.com.zup.orange
 
+import br.com.zup.orange.integracao.bcb.*
 import br.com.zup.orange.integracao.itau.ItauClient
 import br.com.zup.orange.pix.ChavePix
 import br.com.zup.orange.pix.ChavePixRepository
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
+import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
 
@@ -35,23 +37,29 @@ internal class RegistraChaveEndpointTest(
     @Inject
     lateinit var itauClient: ItauClient
 
+    @Inject
+    lateinit var bcbClient: BcbClient
+
     @BeforeEach
     fun setup(){
         chavePixRepository.deleteAll()
     }
 
     @Test
-    fun `cadastrar uma chave pix`(){
+    fun `cadastra uma chave pix`(){
         //cenario
         val clienteId = UUID.randomUUID()
         `when`(itauClient.buscaConta(clienteId = clienteId.toString(), "CONTA_CORRENTE")).thenReturn(HttpResponse.ok(dadosDaContaResponse()))
 
+        `when`(bcbClient.criaChaveBcb(createPixKeyRequest())).thenReturn(HttpResponse.created(createPixKeyResponse()))
+
+        println()
         //acao
         val response = grpcClient.registraChave(
             RegistraChavePixRequest.newBuilder()
             .setClientID(clienteId.toString())
             .setTipoChave(TipoChave.EMAIL)
-            .setChave("rponte@gmail.com")
+            .setChave("rafael@gmail.com")
             .setTipoConta(TipoConta.CONTA_CORRENTE)
             .build())
 
@@ -61,7 +69,6 @@ internal class RegistraChaveEndpointTest(
             assertNotNull(pixId)
         }
     }
-
 
     @Test
     fun `nao cadastra uma chave pix ja existente`(){
@@ -104,6 +111,57 @@ internal class RegistraChaveEndpointTest(
         }
     }
 
+    @Test
+    fun `nao cadastra uma chave pix quando nao for possivel registrar chave no BCB`() {
+        val idDoCliente = UUID.randomUUID().toString()
+        // cenário
+        `when`(itauClient.buscaConta(idDoCliente, tipo = "CONTA_CORRENTE"))
+            .thenReturn(HttpResponse.ok(dadosDaContaResponse()))
+
+        `when`(bcbClient.criaChaveBcb(createPixKeyRequest()))
+            .thenReturn(HttpResponse.badRequest())
+
+        // ação
+        val retorno = assertThrows<StatusRuntimeException> {
+            grpcClient.registraChave(
+                RegistraChavePixRequest.newBuilder()
+                    .setClientID(idDoCliente)
+                    .setTipoChave(TipoChave.EMAIL)
+                    .setChave("rafael@gmail.com")
+                    .setTipoConta(TipoConta.CONTA_CORRENTE)
+                    .build())
+        }
+        // validação
+        with(retorno) {
+            assertEquals(Status.FAILED_PRECONDITION.code, status.code)
+            assertEquals("Erro ao registrar chave Pix no Banco Central do Brasil (BCB)", status.description)
+        }
+    }
+
+    @Test
+    fun `nao cadastra uma chave pix quando nao encontrar dados da conta no Itau`(){
+        //cenario
+        val idDoCliente = UUID.randomUUID().toString()
+        `when`(itauClient.buscaConta(idDoCliente, "CONTA_CORRENTE")).thenReturn(HttpResponse.notFound())
+
+        //acao
+        val retorno = assertThrows<StatusRuntimeException> {
+            grpcClient.registraChave(
+                RegistraChavePixRequest.newBuilder()
+                    .setClientID(idDoCliente)
+                    .setTipoChave(TipoChave.EMAIL)
+                    .setChave("rafael@gmail.com")
+                    .setTipoConta(TipoConta.CONTA_CORRENTE)
+                    .build())
+        }
+
+        //validacao
+        with(retorno){
+            assertEquals(Status.NOT_FOUND.code, status.code)
+            assertEquals("Conta não registada no Itau", status.description)
+        }
+    }
+
     //Cria CLiente GRPC
     @Factory
     class Clients{
@@ -111,6 +169,11 @@ internal class RegistraChaveEndpointTest(
         fun blokingStub(@GrpcChannel(GrpcServerChannel.NAME) channel: ManagedChannel) : KeyManagerRegistaChaveGrpcServiceGrpc.KeyManagerRegistaChaveGrpcServiceBlockingStub {
             return KeyManagerRegistaChaveGrpcServiceGrpc.newBlockingStub(channel)
         }
+    }
+
+    @MockBean(BcbClient::class)
+    fun  bcbClient() : BcbClient?{
+        return Mockito.mock(BcbClient::class.java)
     }
 
     //Mock para simular API externa
@@ -126,6 +189,27 @@ internal class RegistraChaveEndpointTest(
             agencia = "1218",
             numero = "291900",
             titular = TitularResponse("Rafael Ponte", "63657520325")
+        )
+    }
+
+    private fun createPixKeyRequest(): CreatePixKeyRequest{
+        return CreatePixKeyRequest(
+            keyType = PixKeyType.EMAIL,
+            key = "rafael@gmail.com",
+            bankAccount = BankAccount(
+                participant = "60701190", branch = "1218", accountNumber = "291900",
+                accountType = AccountType.CACC),
+            owner = Owner(Owner.OwnerType.NATURAL_PERSON, "Rafael Ponte", "63657520325")
+        )
+    }
+
+    private fun createPixKeyResponse(): CreatePixKeyResponse{
+        return CreatePixKeyResponse(
+            PixKeyType.EMAIL,
+            "rafael@gmail.com",
+            BankAccount(participant = "60701190", branch = "1218", accountNumber = "291900", accountType = AccountType.CACC),
+            Owner(Owner.OwnerType.NATURAL_PERSON, "Rafael Ponte", "63657520325"),
+            createdAt = LocalDateTime.now()
         )
     }
 }

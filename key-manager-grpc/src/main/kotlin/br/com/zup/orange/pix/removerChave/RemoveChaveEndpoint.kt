@@ -4,6 +4,7 @@ import br.com.zup.orange.*
 import br.com.zup.orange.integracao.bcb.BcbClient
 import br.com.zup.orange.integracao.bcb.DeletePixKeyRequest
 import br.com.zup.orange.pix.ChavePixRepository
+import br.com.zup.orange.tratamentoErros.ChavePixBcbException
 import br.com.zup.orange.tratamentoErros.ChavePixNaoExistenteException
 import br.com.zup.orange.tratamentoErros.ErrorHandler
 import io.grpc.stub.StreamObserver
@@ -31,7 +32,7 @@ class RemoveChaveEndpoint(@Inject val repository: ChavePixRepository, @Inject va
         //Remove chave no BCB
         val bcbResponse = bcbClient.removeChaveBcb(chavePix.get().chave, DeletePixKeyRequest(chavePix.get().chave))
         if (bcbResponse.status != HttpStatus.OK)
-            throw IllegalStateException("Erro ao remover chave Pix no Banco Central do Brasil (BCB)")
+            throw ChavePixBcbException("Erro ao remover chave Pix no Banco Central do Brasil (BCB)")
 
         repository.delete(chavePix.get())
 

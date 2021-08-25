@@ -30,8 +30,8 @@ class NovaChavePixDTO(
         )
     }
 
-    fun toBcb(@Valid conta: Conta): PixKeyRequest {
-        return PixKeyRequest(
+    fun toBcb(@Valid conta: Conta): CreatePixKeyRequest {
+        return CreatePixKeyRequest(
             keyType = when (tipoChave) {
                 TipoChave.CPF -> PixKeyType.CPF
                 TipoChave.EMAIL -> PixKeyType.EMAIL

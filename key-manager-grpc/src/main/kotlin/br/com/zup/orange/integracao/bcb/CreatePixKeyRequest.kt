@@ -1,10 +1,9 @@
 package br.com.zup.orange.integracao.bcb
 
-class PixKeyRequest(val keyType: PixKeyType,
-                    val key: String,
-                    val bankAccount: BankAccount,
-                    val owner: Owner
-) {
+data class CreatePixKeyRequest(val keyType: PixKeyType,
+                          val key: String,
+                          val bankAccount: BankAccount,
+                          val owner: Owner) {
 }
 
 enum class PixKeyType() {
@@ -15,7 +14,7 @@ enum class PixKeyType() {
     RANDOM;
 }
 
-class Owner(
+data class Owner(
     val type: OwnerType,
     val name: String,
     val taxIdNumber: String
@@ -27,7 +26,7 @@ class Owner(
     }
 }
 
-class BankAccount(
+data class BankAccount(
     val participant: String,
     val branch: String,
     val accountNumber: String,

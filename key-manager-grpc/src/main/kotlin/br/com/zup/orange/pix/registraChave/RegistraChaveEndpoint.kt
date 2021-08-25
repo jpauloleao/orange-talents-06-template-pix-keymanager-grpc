@@ -6,6 +6,7 @@ import br.com.zup.orange.RegistraChavePixResponse
 import br.com.zup.orange.integracao.bcb.BcbClient
 import br.com.zup.orange.integracao.itau.ItauClient
 import br.com.zup.orange.pix.ChavePixRepository
+import br.com.zup.orange.tratamentoErros.ChavePixBcbException
 import br.com.zup.orange.tratamentoErros.ErrorHandler
 import io.grpc.stub.StreamObserver
 import io.micronaut.http.HttpResponse
@@ -33,7 +34,7 @@ class RegistraChaveEndpoint(
         if (repository.existsByChave(novaChave.chave)) throw IllegalStateException("Chave Pix '${novaChave.chave}' existente")
 
         //Faz a validação das Chaves
-        val validacao = novaChave.tipoChave.validaChave(novaChave.chave)
+        novaChave.tipoChave.validaChave(novaChave.chave)
 
         //Busca dados da conta na API do ITAU
         val response = itauClient.buscaConta(novaChave.clienteId, novaChave.tipoConta.name)
@@ -46,7 +47,7 @@ class RegistraChaveEndpoint(
         val bcbRequest = novaChave.toBcb(conta)
         val bcbResponse = bcbClient.criaChaveBcb(bcbRequest)
         if (bcbResponse.status != HttpStatus.CREATED)
-            throw IllegalStateException("Erro ao registrar chave Pix no Banco Central do Brasil (BCB)")
+            throw ChavePixBcbException("Erro ao registrar chave Pix no Banco Central do Brasil (BCB)")
 
         //Grava os dados no banco
         val chave = novaChave.toModel(conta)
