@@ -45,4 +45,7 @@ class ChavePix(
             this.chave = chave
         }
     }
+
+
+    fun pertenceAo(clienteId: String) = this.clienteId == clienteId
 }

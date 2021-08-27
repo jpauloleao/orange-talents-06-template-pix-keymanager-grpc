@@ -7,6 +7,8 @@ option objc_class_prefix = "HLW";
 
 package br.com.zup.orange;
 
+import "google/protobuf/timestamp.proto";
+
 service KeyManagerRegistaChaveGrpcService {
     rpc registraChave(RegistraChavePixRequest) returns (RegistraChavePixResponse) {}
 }
@@ -15,12 +17,15 @@ service KeyManagerRemoveChaveGrpcService {
     rpc removeChave(RemoveChavePixRequest) returns (RemoveChavePixResponse) {}
 }
 
+service KeyManagerConsultaChaveGrpcService {
+    rpc consultaChave(ConsultaChavePixRequest) returns (ConsultaChavePixResponse) {}
+}
+
 enum TipoConta {
     CONTA_NAO_ESPEFICICADA = 0;
     CONTA_POUPANCA = 1;
     CONTA_CORRENTE = 2;
 }
-
 enum TipoChave {
     CHAVE_NAO_ESPEFICICADA = 0;
     CPF = 1;
@@ -29,23 +34,58 @@ enum TipoChave {
     ALEATORIA = 4;
 }
 
+/*Registra Chave Pix*/
 message RegistraChavePixRequest {
     string clientID = 1;
     TipoChave tipoChave = 2;
     string chave = 3;
     TipoConta tipoConta = 4;
 }
-
 message RegistraChavePixResponse {
     string pixId = 1;
 }
 
+
+/*Remove Chave Pix*/
 message RemoveChavePixRequest {
     string clientId = 1;
     string chavePixId = 2;
 }
-
-
 message RemoveChavePixResponse {
     string clientId = 1;
+}
+
+/*Consulta Chave Pix*/
+message ConsultaChavePixRequest {
+    message ConsultaPorPixId {
+        string clienteId = 1;
+        string pixId     = 2;
+    }
+
+    oneof seletorTipoConsulta {
+        ConsultaPorPixId pixId  = 1;
+        string chave          = 2;
+    }
+}
+
+message ConsultaChavePixResponse {
+    string clienteId = 1;
+    string pixId     = 2;
+    ChavePix chave   = 3;
+
+    message ChavePix {
+        TipoChave tipo        = 1;
+        string chave            = 2;
+        DadosConta conta         = 3;
+        google.protobuf.Timestamp criadaEm = 4;
+
+        message DadosConta {
+            TipoConta tipo     = 1;
+            string instituicao   = 2; /** ITAU UNIBANCO */
+            string agencia       = 3;
+            string numeroConta = 4;
+            string nomeTitular = 5;
+            string cpfTitular  = 6;
+        }
+    }
 }
