@@ -15,7 +15,10 @@ import javax.inject.Singleton
 
 @Singleton
 @ErrorHandler
-class RemoveChaveEndpoint(@Inject val repository: ChavePixRepository, @Inject val bcbClient: BcbClient) :
+class RemoveChaveEndpoint(
+    @Inject private val repository: ChavePixRepository,
+    @Inject private val bcbClient: BcbClient
+) :
     KeyManagerRemoveChaveGrpcServiceGrpc.KeyManagerRemoveChaveGrpcServiceImplBase() {
 
     override fun removeChave(

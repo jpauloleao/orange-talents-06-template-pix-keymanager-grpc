@@ -14,9 +14,9 @@ import javax.inject.Singleton
 @Singleton
 @ErrorHandler
 class ConsultaChaveEndpoint(
-    @Inject val repository: ChavePixRepository,
-    @Inject val bcbClient: BcbClient,
-    @Inject val validator: Validator
+    @Inject private val repository: ChavePixRepository,
+    @Inject private val bcbClient: BcbClient,
+    @Inject private val validator: Validator
 ) : KeyManagerConsultaChaveGrpcServiceGrpc.KeyManagerConsultaChaveGrpcServiceImplBase() {
 
     override fun consultaChave(

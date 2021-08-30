@@ -18,9 +18,9 @@ import javax.inject.Singleton
 @Singleton
 @ErrorHandler
 class RegistraChaveEndpoint(
-    @Inject val repository: ChavePixRepository,
-    @Inject val itauClient: ItauClient,
-    @Inject val bcbClient: BcbClient
+    @Inject private val repository: ChavePixRepository,
+    @Inject private val itauClient: ItauClient,
+    @Inject private val bcbClient: BcbClient
 ) :
     KeyManagerRegistaChaveGrpcServiceGrpc.KeyManagerRegistaChaveGrpcServiceImplBase() {
 
